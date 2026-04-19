@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPosthit.tech - Smart Attendance & Payroll</title>
+  <meta name="description" content="Mobile attendance management app using GPS location and photo verification. Auto-calculate salary and payroll effortlessly.">
+
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-color: #030712;
+      --surface-color: rgba(30, 41, 59, 0.5);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary-gradient: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+      --hover-gradient: linear-gradient(135deg, #059669 0%, #2563eb 100%);
+      --accent: #10b981;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4, .logo, .nav-btn {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Abstract Background */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      overflow: hidden;
+      background: radial-gradient(circle at top right, #1e3a8a22, transparent 40%),
+                  radial-gradient(circle at bottom left, #064e3b22, transparent 40%);
+    }
+
+    .blob {
+      position: absolute;
+      filter: blur(90px);
+      z-index: -1;
+      opacity: 0.6;
+      animation: float 20s infinite ease-in-out alternate;
+    }
+
+    .blob-1 {
+      top: -10%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: #3b82f644;
+      border-radius: 50%;
+    }
+
+    .blob-2 {
+      bottom: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: #10b98144;
+      border-radius: 50%;
+      animation-delay: -5s;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(50px, 100px) scale(1.1); }
+      100% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: auto;
+      padding: 0 24px;
+    }
+
+    /* NAVBAR */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(3, 7, 18, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .logo i {
+      -webkit-text-fill-color: var(--accent);
+      font-size: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      font-size: 15px;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
+
+    .nav-btn {
+      padding: 10px 24px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-btn:hover {
+      background: var(--text-main);
+      color: var(--bg-color);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 180px 0 100px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.8s ease-out;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 800;
+      margin-bottom: 24px;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      animation: fadeUp 1s ease-out 0.2s both;
+    }
+
+    .hero h1 span {
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      animation: fadeUp 1s ease-out 0.4s both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 16px;
+      animation: fadeUp 1s ease-out 0.6s both;
+    }
+
+    .cta-btn {
+      padding: 16px 36px;
+      border-radius: 100px;
+      background: var(--primary-gradient);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s;
+      border: none;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+      background: var(--hover-gradient);
+    }
+    
+    .secondary-btn {
+      padding: 16px 36px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: 'Outfit', sans-serif;
+      backdrop-filter: blur(10px);
+    }
+    
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-3px);
+    }
+
+    /* DASHBOARD MOCKUP */
+    .dashboard-preview {
+      margin-top: 80px;
+      width: 100%;
+      max-width: 1000px;
+      height: 500px;
+      border-radius: 24px;
+      background: var(--surface-color);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      animation: fadeUp 1s ease-out 0.8s both;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .dashboard-header {
+      height: 20px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+    }
+    
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .dot.red { background: #ef4444; }
+    .dot.yellow { background: #f59e0b; }
+    .dot.green { background: #10b981; }
+
+    .dashboard-body {
+        padding: 30px;
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 30px;
+        height: 100%;
+    }
+
+    .mockup-sidebar {
+        background: rgba(0,0,0,0.2);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .mockup-item {
+        height: 30px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.05);
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        gap: 10px;
+    }
+    .mockup-item.active {
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .mockup-icon {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.2);
+    }
+    .mockup-item.active .mockup-icon { background: var(--accent); }
+    
+    .mockup-text {
+        height: 8px;
+        width: 60%;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.2);
+    }
+    .mockup-item.active .mockup-text { background: var(--accent); width: 80%; }
+
+    .mockup-main {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .mockup-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    .mockup-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        padding: 20px;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .mockup-chart {
+        flex: 1;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+    }
+    .chart-line {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60%;
+        background: linear-gradient(0deg, rgba(59, 130, 246, 0.2) 0%, transparent 100%);
+        border-top: 2px solid #3b82f6;
+        border-radius: 0 0 16px 16px;
+        clip-path: polygon(0 100%, 0 60%, 20% 40%, 40% 70%, 60% 20%, 80% 50%, 100% 10%, 100% 100%);
+    }
+
+    /* FEATURES */
+    .features-section {
+      padding: 120px 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    .section-header h2 span {
+        color: var(--accent);
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: auto;
+      font-size: 18px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      background: var(--surface-color);
+      padding: 40px 32px;
+      border-radius: 24px;
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      group: hover;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.1), transparent 50%);
+        opacity: 0;
+        transition: opacity 0.4s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    
+    .feature-card:hover::before {
+        opacity: 1;
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      transition: transform 0.4s;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .feature-card h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* HOW IT WORKS */
+    .workflow-section {
+        padding: 100px 0;
+        background: rgba(255,255,255,0.02);
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+        margin-top: 60px;
+    }
+
+    .step-item {
+        display: flex;
+        align-items: center;
+        gap: 60px;
+        justify-content: space-between;
+    }
+
+    .step-item:nth-child(even) {
+        flex-direction: row-reverse;
+    }
+
+    .step-content {
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .step-tag {
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .step-content h3 {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+
+    .step-content p {
+        color: var(--text-muted);
+        font-size: 18px;
+        margin-bottom: 30px;
+    }
+
+    .step-image {
+        flex: 1;
+        position: relative;
+        perspective: 1000px;
+    }
+    
+    .mobile-mockup {
+        width: 280px;
+        height: 580px;
+        background: #000;
+        border-radius: 40px;
+        border: 8px solid #2a2a2a;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        transform: rotateY(-10deg) rotateX(5deg);
+        transition: transform 0.5s;
+    }
+    
+    .step-item:nth-child(even) .mobile-mockup {
+        transform: rotateY(10deg) rotateX(5deg);
+    }
+    
+    .mobile-mockup:hover {
+        transform: rotateY(0) rotateX(0);
+    }
+
+    .mockup-screen {
+        width: 100%;
+        height: 100%;
+        background: var(--bg-color);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .mockup-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+    }
+    
+    .camera-frame {
+        width: 100%;
+        height: 200px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.05);
+        border: 2px dashed rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,0.3);
+        font-size: 40px;
+    }
+    
+    .map-frame {
+        width: 100%;
+        height: 150px;
+        border-radius: 20px;
+        background: rgba(59, 130, 246, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .map-pin {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #ef4444;
+        font-size: 24px;
+        animation: bounce 2s infinite;
+    }
+
+    /* CTA SECTION */
+    .cta-section {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .cta-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 32px;
+      padding: 80px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 60%);
+        animation: rotate 20s linear infinite;
+        z-index: 0;
+    }
+    
+    .cta-card * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-card h2 {
+      font-size: clamp(32px, 4vw, 48px);
+      margin-bottom: 24px;
+    }
+
+    .cta-card p {
+      color: var(--text-muted);
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 60px 0 30px;
+      border-top: 1px solid var(--glass-border);
+      margin-top: 60px;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    .copyright {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translate(-50%, -50%); }
+        50% { transform: translate(-50%, -70%); }
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* RESPONSIVE */
+    @media(max-width: 900px) {
+        .dashboard-body {
+            grid-template-columns: 1fr;
+        }
+        .mockup-sidebar { display: none; }
+    }
+    
+    @media(max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .hero-btns {
+          flex-direction: column;
+          width: 100%;
+          max-width: 300px;
+      }
+      
+      .step-item, .step-item:nth-child(even) {
+          flex-direction: column;
+          text-align: center;
+          gap: 40px;
+      }
+      
+      .cta-card {
+          padding: 60px 20px;
+      }
+      
+      .footer-content {
+          flex-direction: column;
+          text-align: center;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Abstract Background Elements -->
+  <div class="bg-animation">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-content">
+      <div class="logo">
+        <i class="fa-solid fa-fingerprint"></i>
+        UPosthit
+      </div>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How it Works</a>
+        <a href="#payroll" class="nav-link">Payroll</a>
+      </div>
+      <a href="#" class="nav-btn">Admin Login</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-badge">
+        <i class="fa-solid fa-bolt"></i> v2.0 Available Now
+      </div>
+      <h1>Smart Attendance & <br><span>Automated Payroll</span></h1>
+      <p>
+        Track workforce attendance via GPS, verify with live photos, and calculate salaries automatically. The all-in-one HR solution for mobile teams.
+      </p>
+      <div class="hero-btns">
+        <a href="#" class="cta-btn">Start 14-Day Free Trial</a>
+        <a href="#" class="secondary-btn"><i class="fa-solid fa-play" style="margin-right:8px;"></i> Watch Demo</a>
+      </div>
+
+      <!-- Dashboard Mockup -->
+      <div style="margin-top: 80px; width: 100%; max-width: 1000px; animation: fadeUp 1s ease-out 0.8s both; position: relative; perspective: 1000px;">
+          <img src="images/dashboard_preview_1776586555403.png" alt="UPosthit Dashboard" style="width: 100%; height: auto; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: 0 40px 80px rgba(0,0,0,0.6); object-fit: cover; transform: rotateX(2deg); transition: transform 0.5s;" onmouseover="this.style.transform='rotateX(0deg)'" onmouseout="this.style.transform='rotateX(2deg)'">
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="features-section">
+      <div class="section-header">
+        <h2>Features designed for <span>growth</span></h2>
+        <p>Everything you need to manage your distributed workforce securely and efficiently, without the paperwork.</p>
+      </div>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-location-crosshairs"></i></div>
+          <h3>GPS Geo-Fencing</h3>
+          <p>Restrict attendance marking to specific job sites. Employees can only clock in when they are physically within the designated work radius.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-camera-retro"></i></div>
+          <h3>Photo Verification</h3>
+          <p>Eliminate buddy punching. Require a live selfie capture during check-in to mathematically verify the identity of the employee marking attendance.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          <h3>One-Click Payroll</h3>
+          <p>Say goodbye to spreadsheets. Our system auto-calculates total hours, overtime, and salary deductions, generating accurate payroll instantly.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          <h3>Real-time Analytics</h3>
+          <p>View live dashboards of who is currently working, who is late, and who is absent with our robust admin reporting tools.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+          <h3>Mobile First</h3>
+          <p>A native mobile experience designed for field workers. Low data usage, offline mode queuing, and an intuitive UI requiring zero training.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <h3>Enterprise Security</h3>
+          <p>Bank-grade encryption for all facial data and location tracking. Completely GDPR compliant workforce monitoring.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works" class="workflow-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>How UPosthit Works</h2>
+        <p>A frictionless experience for both employees and administrators.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step-item">
+            <div class="step-content">
+                <span class="step-tag">Step 1 • Employee App</span>
+                <h3>Arrive & Snap</h3>
+                <p>Employees open the UPosthit mobile app upon arriving at the site. They are prompted to take a live selfie which corresponds to their registered facial profile.</p>
+                <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 14px; background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 6px;"><i class="fa-solid fa-check" style="color:var(--accent)"></i> Liveness Detection</span>
+                    <span style="font-size: 14px; background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 6px;"><i class="fa-solid fa-check" style="color:var(--accent)"></i> Fast Processing</span>
+                </div>
+            </div>
+            <div class="step-image">
+                <div class="mobile-mockup" style="padding: 0; display: flex; background: #000;">
+                    <img src="images/mobile_face_scan_1776586571814.png" alt="Face Scan UI" style="width: 100%; height: 100%; object-fit: cover; border-radius: 32px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-content">
+                <span class="step-tag">Step 2 • Background Sync</span>
+                <h3>Location Validation</h3>
+                <p>The app simultaneously fetches the user's GPS coordinates. If they are within the geofence perimeter of their assigned worksite, the attendance is verified and pushed to the cloud.</p>
+            </div>
+            <div class="step-image">
+                <div class="mobile-mockup" style="padding: 0; display: flex; background: #000;">
+                    <img src="images/mobile_gps_map_1776586583788.png" alt="GPS Location UI" style="width: 100%; height: 100%; object-fit: cover; border-radius: 32px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="step-item">
+            <div class="step-content">
+                <span class="step-tag">Step 3 • Admin Portal</span>
+                <h3>Automated Salary Calculation</h3>
+                <p>At the end of the month, the admin opens the dashboard. The system has already calculated total present days, late penalties, and generated compliant payroll slips ready for disbursement.</p>
+             </div>
+            <div class="step-image" style="display:flex; align-items:center; justify-content:center;">
+                <div style="width: 100%; height: 300px; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; display:flex; flex-direction:column; gap:15px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+                    <div style="height: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:600">Payroll View</span>
+                        <div style="padding: 4px 12px; background:var(--primary-gradient); border-radius:4px; font-size:12px; font-weight:600;">Run Payroll</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding: 10px; background:rgba(255,255,255,0.05); border-radius:8px;">
+                        <span>John Doe</span>
+                        <span>24 Days</span>
+                        <span style="color:var(--accent)">$3,200.00</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding: 10px; background:rgba(255,255,255,0.05); border-radius:8px;">
+                        <span>Jane Smith</span>
+                        <span>22 Days</span>
+                        <span style="color:var(--accent)">$2,950.00</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding: 10px; background:rgba(255,255,255,0.05); border-radius:8px;">
+                        <span>Mike Ross</span>
+                        <span>26 Days</span>
+                        <span style="color:var(--accent)">$3,500.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="container">
+    <section class="cta-section">
+      <div class="cta-card">
+        <h2>Ready to modernize your workforce?</h2>
+        <p>Join hundreds of companies saving hours on payroll calculations and eliminating attendance fraud completely.</p>
+        <a href="#" class="cta-btn" style="display:inline-block;">Create Free Account</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="container">
+    <footer>
+      <div class="footer-content">
+        <div class="logo" style="font-size: 20px;">
+            <i class="fa-solid fa-fingerprint"></i>
+            UPosthit
+        </div>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Contact Support</a>
+        </div>
+      </div>
+      <div class="copyright">
+        Copyright by Fillosoft Technologies Pvt Ltd • <a href="https://fillosoft.com" style="color: var(--accent); text-decoration: none; font-weight: 500;">fillosoft.com</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Navbar Scroll Effect
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      if (window.scrollY > 50) {
+        nav.style.background = 'rgba(3, 7, 18, 0.8)';
+        nav.style.padding = '16px 0';
+        nav.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+      } else {
+        nav.style.background = 'rgba(3, 7, 18, 0.6)';
+        nav.style.padding = '24px 0';
+        nav.style.boxShadow = 'none';
+      }
+    });
+
+    // Simple Intersection Observer for Animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animation = 'fadeUp 0.8s ease-out forwards';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card, .step-item').forEach(el => {
+      el.style.opacity = '0';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
